@@ -1,0 +1,48 @@
+
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hopital-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=HopitalPass123!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - hopital-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'HopitalPass123!' -C -Q 'SELECT 1' -b || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 15
+      start_period: 60s
+
+  # ASP.NET Core Web Application
+  webapp:
+    build:
+      context: ./projet-hopital
+      dockerfile: Dockerfile
+    container_name: hopital-webapp
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=HopitalDB;User Id=sa;Password=HopitalPass123!;TrustServerCertificate=True;MultipleActiveResultSets=true
+    ports:
+      - "5000:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - hopital-network
+    restart: unless-stopped
+
+volumes:
+  sqlserver-data:
+
+networks:
+  hopital-network:
+    driver: bridge
+

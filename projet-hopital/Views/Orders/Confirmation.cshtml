@@ -1,0 +1,71 @@
+﻿@model projet_hopital.ViewModels.OrderConfirmationViewModel
+@{
+    ViewData["Title"] = "Commande Confirmée";
+}
+<div class="text-center py-5">
+    <div class="mb-4">
+        <span class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+            <i class="bi bi-check-lg display-4"></i>
+        </span>
+    </div>
+    <h1 class="fw-bold text-success mb-2">Commande Confirmée !</h1>
+    <p class="lead text-muted">Numéro de commande: <strong>@Model.Order.OrderNumber</strong></p>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0"><i class="bi bi-receipt me-2"></i>Détails de la Commande</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Date:</div>
+                    <div class="col-sm-8">@Model.Order.CreatedAt.ToString("dd MMMM yyyy à HH:mm", new System.Globalization.CultureInfo("fr-FR"))</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Statut:</div>
+                    <div class="col-sm-8"><span class="badge bg-success">Confirmée</span></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted">Total:</div>
+                    <div class="col-sm-8 fw-bold fs-5 text-success">@Model.Order.TotalAmount.ToString("N0") MAD</div>
+                </div>
+            </div>
+        </div>
+        @if (Model.CreatedAppointments.Any())
+        {
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Vos Rendez-vous</h5>
+                </div>
+                <div class="card-body p-0">
+                    @foreach (var appointment in Model.CreatedAppointments)
+                    {
+                        <div class="p-4 border-bottom">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary text-white rounded p-3 me-3 text-center" style="min-width: 70px;">
+                                    <div class="fs-4 fw-bold">@appointment.AppointmentDate.Day</div>
+                                    <div class="small">@appointment.AppointmentDate.ToString("MMM", new System.Globalization.CultureInfo("fr-FR"))</div>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Dr. @appointment.Doctor?.FullName</h6>
+                                    <p class="text-muted mb-0">
+                                        <i class="bi bi-clock me-1"></i>@appointment.StartTime.ToString(@"hh\:mm")
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        <div class="text-center">
+            <a asp-controller="Appointments" asp-action="Index" class="btn btn-primary me-2">
+                <i class="bi bi-calendar-check me-2"></i>Voir Mes Rendez-vous
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary">
+                <i class="bi bi-house me-2"></i>Retour à l'Accueil
+            </a>
+        </div>
+    </div>
+</div>

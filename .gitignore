@@ -1,0 +1,68 @@
+# .NET
+secrets.json
+# Secrets
+
+appsettings.Development.json
+.env.*.local
+.env.local
+.env
+# Environment files
+
+docker-compose.override.yml
+# Docker
+
+.DS_Store
+# Mac
+
+Desktop.ini
+ehthumbs.db
+Thumbs.db
+# Windows
+
+ScaffoldingReadMe.txt
+# ASP.NET
+
+artifacts/
+project.fragment.lock.json
+project.lock.json
+*.nuget.targets
+*.nuget.props
+!**/[Pp]ackages/build/
+**/[Pp]ackages/*
+*.nupkg
+# NuGet
+
+[Ll]ogs/
+[Ll]og/
+[Oo]bj/
+[Bb]in/
+bld/
+x86/
+x64/
+[Rr]elease/
+[Dd]ebug/
+# Build results
+
+*.sln.docstates
+*.userosscache
+*.user
+*.suo
+*.rsuser
+# User-specific files
+
+*.DotSettings.user
+.idea/
+# JetBrains Rider
+
+*.sln.docstates
+.vs/
+# Visual Studio
+
+*.log
+*.cache
+*.suo
+*.userosscache
+*.user
+obj/
+bin/
+

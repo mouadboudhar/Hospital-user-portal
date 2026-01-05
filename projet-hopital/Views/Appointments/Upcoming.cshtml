@@ -1,0 +1,52 @@
+﻿@model List<projet_hopital.Models.Appointment>
+@{
+    ViewData["Title"] = "Upcoming Appointments";
+}
+<h1 class="fw-bold mb-4">Upcoming Appointments</h1>
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link" asp-action="Index">All</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link active" asp-action="Upcoming">Upcoming</a>
+    </li>
+</ul>
+@if (Model.Any())
+{
+    <div class="row g-4">
+        @foreach (var appointment in Model)
+        {
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-2 text-center">
+                                <div class="bg-primary text-white rounded p-3">
+                                    <div class="fs-2 fw-bold">@appointment.AppointmentDate.Day</div>
+                                    <div>@appointment.AppointmentDate.ToString("MMM")</div>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <h5>@appointment.Doctor?.FullName</h5>
+                                <p class="text-primary mb-1">@appointment.Doctor?.Specialization</p>
+                                <p class="text-muted mb-0">@appointment.StartTime.ToString(@"hh\:mm") - @appointment.EndTime.ToString(@"hh\:mm")</p>
+                            </div>
+                            <div class="col-md-3 text-md-end">
+                                <span class="badge bg-success">@appointment.Status</span>
+                                <div class="fs-5 fw-bold text-primary mt-2">@appointment.TotalCost.ToString("C")</div>
+                                <a asp-action="Details" asp-route-id="@appointment.Id" class="btn btn-outline-primary btn-sm mt-2">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <h4>No upcoming appointments</h4>
+        <a asp-controller="Doctors" asp-action="Index" class="btn btn-primary">Book an Appointment</a>
+    </div>
+}

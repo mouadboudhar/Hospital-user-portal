@@ -1,0 +1,81 @@
+﻿@model projet_hopital.Models.Appointment
+@{
+    ViewData["Title"] = "Appointment Details";
+}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Appointments</a></li>
+        <li class="breadcrumb-item active">Details</li>
+    </ol>
+</nav>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0">Appointment Details</h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="bg-light rounded p-4 text-center">
+                            <h5>Date</h5>
+                            <p class="fs-5 mb-0">@Model.AppointmentDate.ToString("MMMM d, yyyy")</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="bg-light rounded p-4 text-center">
+                            <h5>Time</h5>
+                            <p class="fs-5 mb-0">@Model.StartTime.ToString(@"hh\:mm") - @Model.EndTime.ToString(@"hh\:mm")</p>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <h5 class="mb-3">Doctor</h5>
+                <div class="d-flex align-items-center mb-4">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                        <span class="fs-5">@Model.Doctor?.FirstName[0]@Model.Doctor?.LastName[0]</span>
+                    </div>
+                    <div>
+                        <h6 class="mb-0">@Model.Doctor?.FullName</h6>
+                        <span class="text-primary">@Model.Doctor?.Specialization</span>
+                    </div>
+                </div>
+                @if (Model.Service != null)
+                {
+                    <h5 class="mb-3">Service</h5>
+                    <p>@Model.Service.Name</p>
+                }
+                @if (!string.IsNullOrEmpty(Model.Notes))
+                {
+                    <h5 class="mb-3">Notes</h5>
+                    <p class="text-muted">@Model.Notes</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="mb-0">Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted">Status</small>
+                    <div><span class="badge bg-success">@Model.Status</span></div>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="fw-bold fs-5">Total</span>
+                    <span class="fw-bold fs-5 text-primary">@Model.TotalCost.ToString("C")</span>
+                </div>
+                @if (Model.Status != projet_hopital.Models.AppointmentStatus.Cancelled && Model.AppointmentDate > DateTime.Today)
+                {
+                    <form asp-action="Cancel" asp-route-id="@Model.Id" method="post">
+                        <button type="submit" class="btn btn-outline-danger w-100" onclick="return confirm('Cancel this appointment?')">Cancel Appointment</button>
+                    </form>
+                }
+                <a asp-action="Index" class="btn btn-outline-primary w-100 mt-2">Back to Appointments</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,113 @@
+﻿@model projet_hopital.ViewModels.DoctorDetailViewModel
+@{
+    ViewData["Title"] = "Dr. " + Model.Doctor.FullName;
+    var defaultDoctorImage = "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400";
+}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Accueil</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Doctors" asp-action="Index">Médecins</a></li>
+        <li class="breadcrumb-item active">Dr. @Model.Doctor.FullName</li>
+    </ol>
+</nav>
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card border-0 shadow-sm">
+            <img src="@(Model.Doctor.ImageUrl ?? defaultDoctorImage)" class="card-img-top" alt="@Model.Doctor.FullName" style="height: 300px; object-fit: cover;">
+            <div class="card-body text-center p-4">
+                <h3 class="fw-bold mb-1">Dr. @Model.Doctor.FullName</h3>
+                <p class="text-primary fs-5 mb-2">@Model.Doctor.Specialization</p>
+                <span class="badge bg-light text-dark mb-3"><i class="bi bi-building me-1"></i>@Model.Doctor.Department?.Name</span>
+                <hr />
+                <div class="text-start">
+                    <p class="mb-2"><i class="bi bi-briefcase text-primary me-2"></i><strong>Expérience:</strong> @Model.Doctor.YearsOfExperience ans</p>
+                    <p class="mb-2"><i class="bi bi-cash text-primary me-2"></i><strong>Consultation:</strong> <span class="text-success fw-bold">@Model.Doctor.ConsultationFee.ToString("N0") MAD</span></p>
+                    @if (Model.Doctor.IsAvailable)
+                    {
+                        <p class="mb-0"><i class="bi bi-check-circle text-success me-2"></i><span class="text-success">Disponible pour les consultations</span></p>
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Doctor.Bio))
+                {
+                    <hr />
+                    <p class="text-muted small mb-0">@Model.Doctor.Bio</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="mb-0"><i class="bi bi-calendar-plus me-2"></i>Prendre Rendez-vous</h4>
+            </div>
+            <div class="card-body p-4">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <form asp-controller="Basket" asp-action="AddAppointment" method="post">
+                        <input type="hidden" name="doctorId" value="@Model.Doctor.Id" />
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold"><i class="bi bi-calendar me-1"></i>Date du Rendez-vous</label>
+                                <input type="date" id="appointmentDate" name="appointmentDate" class="form-control" 
+                                       value="@Model.SelectedDate.ToString("yyyy-MM-dd")" 
+                                       min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold"><i class="bi bi-clock me-1"></i>Heure du Rendez-vous</label>
+                                <select name="appointmentTime" class="form-select" required>
+                                    <option value="">Choisir une heure...</option>
+                                    @foreach (var slot in Model.AvailableTimeSlots.Where(s => s.IsAvailable))
+                                    {
+                                        <option value="@slot.StartTime.ToString(@"hh\:mm")">@slot.DisplayTime</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        @if (Model.AvailableServices.Any())
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-bold"><i class="bi bi-clipboard2-plus me-1"></i>Service Additionnel (Optionnel)</label>
+                                <select name="serviceId" class="form-select">
+                                    <option value="">Consultation uniquement</option>
+                                    @foreach (var service in Model.AvailableServices)
+                                    {
+                                        <option value="@service.Id">@service.Name (+@service.Price.ToString("N0") MAD)</option>
+                                    }
+                                </select>
+                            </div>
+                        }
+                        <div class="mb-4">
+                            <label class="form-label fw-bold"><i class="bi bi-chat-text me-1"></i>Notes (Optionnel)</label>
+                            <textarea name="notes" class="form-control" rows="3" placeholder="Décrivez vos symptômes ou la raison de votre visite..."></textarea>
+                        </div>
+                        <div class="bg-light rounded p-3 mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Frais de Consultation:</span>
+                                <span class="fs-4 fw-bold text-success">@Model.Doctor.ConsultationFee.ToString("N0") MAD</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-cart-plus me-2"></i>Ajouter au Panier
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200" alt="Connexion requise" class="rounded-circle mb-4" style="width: 150px; height: 150px; object-fit: cover; opacity: 0.7;">
+                        <h5>Connectez-vous pour prendre rendez-vous</h5>
+                        <p class="text-muted mb-4">Créez un compte ou connectez-vous pour réserver une consultation</p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Se Connecter
+                            </a>
+                            <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary">
+                                <i class="bi bi-person-plus me-2"></i>S'inscrire
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

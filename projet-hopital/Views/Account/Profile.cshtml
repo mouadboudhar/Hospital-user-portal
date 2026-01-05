@@ -1,0 +1,45 @@
+﻿@model projet_hopital.ViewModels.UserProfileViewModel
+@{
+    ViewData["Title"] = "Mon Profil";
+}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow">
+            <div class="card-header bg-primary text-white py-4">
+                <div class="text-center">
+                    <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=150" alt="Profil" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover; border: 4px solid rgba(255,255,255,0.5);">
+                    <h3 class="mb-0">@Model.FirstName @Model.LastName</h3>
+                    <p class="mb-0 opacity-75">@Model.Email</p>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4"><i class="bi bi-person-lines-fill me-2"></i>Informations Personnelles</h5>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted"><i class="bi bi-telephone me-2"></i>Téléphone:</div>
+                    <div class="col-sm-8">@(Model.PhoneNumber ?? "Non renseigné")</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted"><i class="bi bi-geo-alt me-2"></i>Adresse:</div>
+                    <div class="col-sm-8">@(Model.Address ?? "Non renseignée")</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted"><i class="bi bi-calendar me-2"></i>Date de naissance:</div>
+                    <div class="col-sm-8">@(Model.DateOfBirth?.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("fr-FR")) ?? "Non renseignée")</div>
+                </div>
+                <hr class="my-4" />
+                <h5 class="fw-bold mb-4"><i class="bi bi-lightning me-2"></i>Actions Rapides</h5>
+                <div class="d-grid gap-2">
+                    <a asp-controller="Appointments" asp-action="Upcoming" class="btn btn-outline-primary">
+                        <i class="bi bi-calendar-event me-2"></i>Rendez-vous à Venir
+                    </a>
+                    <a asp-controller="Orders" asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-receipt me-2"></i>Historique des Commandes
+                    </a>
+                    <a asp-controller="Doctors" asp-action="Index" class="btn btn-primary">
+                        <i class="bi bi-calendar-plus me-2"></i>Prendre un Nouveau Rendez-vous
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

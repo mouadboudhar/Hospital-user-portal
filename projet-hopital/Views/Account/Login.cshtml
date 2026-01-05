@@ -1,0 +1,51 @@
+﻿@model projet_hopital.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Connexion";
+}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=100" alt="Connexion" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;">
+                    <h2 class="fw-bold">Connexion</h2>
+                    <p class="text-muted">Accédez à votre espace patient</p>
+                </div>
+                <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Adresse Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Email" class="form-control" placeholder="votre@email.com" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Mot de Passe</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input asp-for="Password" class="form-control" placeholder="********" />
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input asp-for="RememberMe" class="form-check-input" />
+                            <label asp-for="RememberMe" class="form-check-label">Se souvenir de moi</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Se Connecter
+                    </button>
+                </form>
+                <div class="text-center">
+                    <p class="mb-0">Pas encore de compte ? <a asp-action="Register" class="fw-bold">Inscrivez-vous</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

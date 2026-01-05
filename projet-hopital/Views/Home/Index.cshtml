@@ -1,0 +1,173 @@
+﻿@model projet_hopital.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Bienvenue";
+}
+<!-- Hero Section avec image -->
+<section class="position-relative mb-5 rounded-3 overflow-hidden" style="background: linear-gradient(135deg, rgba(13, 110, 253, 0.9), rgba(11, 94, 215, 0.95)), url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200') center/cover;">
+    <div class="py-5 px-3">
+        <div class="row align-items-center justify-content-center py-4 g-4">
+            <div class="col-lg-7 text-white">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="bi bi-heart-pulse me-3"></i>Votre Santé, Notre Priorité
+                </h1>
+                <p class="lead mb-4">
+                    Prenez rendez-vous avec nos meilleurs spécialistes, découvrez nos services médicaux et gérez votre parcours de santé en un seul endroit.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a asp-controller="Doctors" asp-action="Index" class="btn btn-light btn-lg">
+                        <i class="bi bi-person-badge me-2"></i>Trouver un Médecin
+                    </a>
+                    <a asp-controller="Services" asp-action="Index" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-clipboard2-pulse me-2"></i>Nos Services
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center d-none d-lg-block">
+                <img src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=400" alt="Équipe médicale" class="img-fluid rounded-circle shadow" style="width: 280px; height: 280px; object-fit: cover; border: 5px solid rgba(255,255,255,0.3);">
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Statistiques -->
+<section class="mb-5">
+    <div class="row g-4 text-center">
+        <div class="col-md-3">
+            <div class="card border-0 bg-light h-100">
+                <div class="card-body">
+                    <i class="bi bi-people display-4 text-primary mb-2"></i>
+                    <h3 class="fw-bold">@Model.FeaturedDoctors.Count+</h3>
+                    <p class="text-muted mb-0">Médecins Experts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-light h-100">
+                <div class="card-body">
+                    <i class="bi bi-building display-4 text-primary mb-2"></i>
+                    <h3 class="fw-bold">@Model.FeaturedDepartments.Count</h3>
+                    <p class="text-muted mb-0">Départements</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-light h-100">
+                <div class="card-body">
+                    <i class="bi bi-clipboard2-check display-4 text-primary mb-2"></i>
+                    <h3 class="fw-bold">@Model.PopularServices.Count+</h3>
+                    <p class="text-muted mb-0">Services Médicaux</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-light h-100">
+                <div class="card-body">
+                    <i class="bi bi-clock display-4 text-primary mb-2"></i>
+                    <h3 class="fw-bold">24/7</h3>
+                    <p class="text-muted mb-0">Support Disponible</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Départements -->
+<section class="mb-5">
+    <h2 class="fw-bold mb-4"><i class="bi bi-building me-2 text-primary"></i>Nos Départements</h2>
+    <div class="row g-4">
+        @{
+            var defaultDeptImage = "https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?w=300";
+        }
+        @foreach (var department in Model.FeaturedDepartments)
+        {
+            <div class="col-md-4 col-lg-2">
+                <a asp-controller="Services" asp-action="Index" asp-route-departmentId="@department.Id" class="text-decoration-none">
+                    <div class="card h-100 border-0 shadow-sm text-center hover-card">
+                        <div class="card-body">
+                            <img src="@(department.ImageUrl ?? defaultDeptImage)" alt="@department.Name" class="rounded-circle mb-3" style="width: 60px; height: 60px; object-fit: cover;">
+                            <h6 class="card-title text-dark mb-0">@department.Name</h6>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</section>
+<!-- Médecins -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-person-badge me-2 text-primary"></i>Nos Médecins</h2>
+        <a asp-controller="Doctors" asp-action="Index" class="btn btn-outline-primary">Voir Tous</a>
+    </div>
+    <div class="row g-4">
+        @{
+            var defaultDoctorImage = "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=300";
+        }
+        @foreach (var doctor in Model.FeaturedDoctors)
+        {
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <img src="@(doctor.ImageUrl ?? defaultDoctorImage)" alt="@doctor.FullName" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                        <h5 class="card-title mb-1">Dr. @doctor.FullName</h5>
+                        <p class="text-primary mb-2">@doctor.Specialization</p>
+                        <p class="text-muted small mb-2">@doctor.Department?.Name</p>
+                        <p class="fw-bold text-success mb-3">@doctor.ConsultationFee.ToString("N0") MAD</p>
+                        <a asp-controller="Doctors" asp-action="Details" asp-route-id="@doctor.Id" class="btn btn-outline-primary btn-sm w-100">Prendre RDV</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+<!-- Services Populaires -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-clipboard2-pulse me-2 text-primary"></i>Services Populaires</h2>
+        <a asp-controller="Services" asp-action="Index" class="btn btn-outline-primary">Voir Tous</a>
+    </div>
+    <div class="row g-4">
+        @{
+            var defaultServiceImage = "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=300";
+        }
+        @foreach (var service in Model.PopularServices)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <img src="@(service.ImageUrl ?? defaultServiceImage)" class="card-img-top" alt="@service.Name" style="height: 150px; object-fit: cover;">
+                    <div class="card-body">
+                        <span class="badge bg-primary mb-2">@service.Department?.Name</span>
+                        <h5 class="card-title">@service.Name</h5>
+                        <p class="text-muted small mb-3">@service.Description</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fs-5 fw-bold text-success">@service.Price.ToString("N0") MAD</span>
+                            <span class="text-muted small"><i class="bi bi-clock me-1"></i>@service.DurationMinutes min</span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0">
+                        <a asp-controller="Services" asp-action="Details" asp-route-id="@service.Id" class="btn btn-primary w-100">En Savoir Plus</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+<!-- CTA Section -->
+<section class="rounded-3 p-5 text-center text-white mb-4" style="background: linear-gradient(135deg, rgba(25, 135, 84, 0.95), rgba(20, 108, 67, 0.95)), url('https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=1200') center/cover;">
+    <h3 class="fw-bold mb-3">Prêt à Prendre Soin de Votre Santé ?</h3>
+    <p class="mb-4">Créez un compte pour prendre rendez-vous, suivre votre historique médical et plus encore.</p>
+    @if (!User.Identity?.IsAuthenticated ?? true)
+    {
+        <a asp-controller="Account" asp-action="Register" class="btn btn-light btn-lg">
+            <i class="bi bi-person-plus me-2"></i>Créer un Compte
+        </a>
+    }
+    else
+    {
+        <a asp-controller="Doctors" asp-action="Index" class="btn btn-light btn-lg">
+            <i class="bi bi-calendar-plus me-2"></i>Prendre Rendez-vous
+        </a>
+    }
+</section>
+<style>
+    .hover-card { transition: transform 0.2s ease-in-out; }
+    .hover-card:hover { transform: translateY(-5px); }
+</style>

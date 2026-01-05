@@ -1,0 +1,54 @@
+﻿@model projet_hopital.ViewModels.OrderHistoryViewModel
+@{
+    ViewData["Title"] = "Mes Commandes";
+}
+<h1 class="fw-bold mb-4"><i class="bi bi-receipt me-2 text-primary"></i>Historique des Commandes</h1>
+@if (Model.Orders.Any())
+{
+    <div class="row g-4">
+        @foreach (var order in Model.Orders)
+        {
+            var statusText = order.Status.ToString() == "Completed" ? "Terminée" : order.Status.ToString() == "Pending" ? "En attente" : order.Status.ToString();
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <div class="bg-primary bg-opacity-10 rounded p-3 text-center">
+                                    <i class="bi bi-bag-check text-primary display-6"></i>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="fw-bold mb-1">Commande #@order.OrderNumber</h5>
+                                <p class="text-muted mb-1">
+                                    <i class="bi bi-calendar me-1"></i>@order.CreatedAt.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("fr-FR"))
+                                </p>
+                                <p class="mb-0">
+                                    <span class="badge bg-success">@statusText</span>
+                                    <span class="text-muted ms-2">@order.Items.Count article(s)</span>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-md-end">
+                                <p class="fs-4 fw-bold text-success mb-2">@order.TotalAmount.ToString("N0") MAD</p>
+                                <a asp-action="Details" asp-route-id="@order.Id" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye me-1"></i>Voir Détails
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=200" alt="Aucune commande" class="rounded-circle mb-4" style="width: 150px; height: 150px; object-fit: cover; opacity: 0.6;">
+        <h4>Aucune commande</h4>
+        <p class="text-muted mb-4">Vous n'avez pas encore passé de commande.</p>
+        <a asp-controller="Services" asp-action="Index" class="btn btn-primary">
+            <i class="bi bi-clipboard2-pulse me-2"></i>Découvrir nos Services
+        </a>
+    </div>
+}

@@ -1,0 +1,110 @@
+﻿@model projet_hopital.Models.MedicalService
+@{
+    ViewData["Title"] = Model.Name;
+    var defaultServiceImage = "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=600";
+}
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Accueil</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Services" asp-action="Index">Services</a></li>
+        <li class="breadcrumb-item active">@Model.Name</li>
+    </ol>
+</nav>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+            <img src="@(Model.ImageUrl ?? defaultServiceImage)" class="card-img-top" alt="@Model.Name" style="height: 300px; object-fit: cover;">
+            <div class="card-body p-4">
+                <span class="badge bg-primary mb-3">@Model.Department?.Name</span>
+                <h1 class="fw-bold mb-3">@Model.Name</h1>
+                <div class="d-flex gap-4 mb-4">
+                    <span class="fs-3 fw-bold text-success">@Model.Price.ToString("N0") MAD</span>
+                    <span class="d-flex align-items-center text-muted"><i class="bi bi-clock me-2"></i>@Model.DurationMinutes minutes</span>
+                </div>
+                <hr />
+                <h5 class="fw-bold mb-3"><i class="bi bi-info-circle me-2"></i>À propos de ce service</h5>
+                <p class="text-muted fs-5">@(Model.Description ?? "Service médical de qualité professionnelle.")</p>
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-check-circle-fill text-success fs-4 me-3"></i>
+                            <span>Personnel médical qualifié</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-check-circle-fill text-success fs-4 me-3"></i>
+                            <span>Équipement moderne</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-check-circle-fill text-success fs-4 me-3"></i>
+                            <span>Résultats rapides</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-check-circle-fill text-success fs-4 me-3"></i>
+                            <span>Suivi personnalisé</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">
+            <div class="card-header bg-primary text-white py-3">
+                <h5 class="mb-0"><i class="bi bi-calendar-plus me-2"></i>Réserver ce Service</h5>
+            </div>
+            <div class="card-body p-4">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <form asp-controller="Basket" asp-action="AddService" method="post">
+                        <input type="hidden" name="serviceId" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label class="form-label fw-bold"><i class="bi bi-calendar me-1"></i>Date Préférée</label>
+                            <input type="date" name="preferredDate" class="form-control" 
+                                   min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"
+                                   value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold"><i class="bi bi-clock me-1"></i>Heure Préférée</label>
+                            <select name="preferredTime" class="form-select" required>
+                                <option value="09:00">09:00</option>
+                                <option value="10:00">10:00</option>
+                                <option value="11:00">11:00</option>
+                                <option value="14:00">14:00</option>
+                                <option value="15:00">15:00</option>
+                                <option value="16:00">16:00</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold"><i class="bi bi-chat-text me-1"></i>Notes</label>
+                            <textarea name="notes" class="form-control" rows="2" placeholder="Informations supplémentaires..."></textarea>
+                        </div>
+                        <div class="bg-light rounded p-3 mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">Total:</span>
+                                <span class="fs-4 fw-bold text-success">@Model.Price.ToString("N0") MAD</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-cart-plus me-2"></i>Ajouter au Panier
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-lock display-4 text-muted mb-3"></i>
+                        <p class="text-muted mb-3">Connectez-vous pour réserver ce service</p>
+                        <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Se Connecter
+                        </a>
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-person-plus me-2"></i>Créer un Compte
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
