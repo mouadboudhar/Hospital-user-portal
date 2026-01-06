@@ -25,7 +25,7 @@
                                 <small class="text-muted">@item.AppointmentDate.Value.ToString("MMM d, yyyy")</small>
                             }
                         </div>
-                        <span class="fw-bold">@item.SubTotal.ToString("C")</span>
+                        <span class="fw-bold">@item.SubTotal MAD</span>
                     </div>
                 }
             </div>
@@ -52,7 +52,7 @@
                 <hr />
                 <div class="d-flex justify-content-between">
                     <span class="fw-bold fs-5">Total</span>
-                    <span class="fw-bold fs-5 text-primary">@Model.Order.TotalAmount.ToString("C")</span>
+                    <span class="fw-bold fs-5 text-primary">@Model.Order.TotalAmount MAD</span>
                 </div>
             </div>
         </div>
