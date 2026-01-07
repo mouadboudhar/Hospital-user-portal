@@ -15,7 +15,7 @@ jobs:
           username: ${{ secrets.AZURE_VM_USER }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           script: |
-            /home/azureuser/Hospital-user-portal
+            cd /home/azureuser/Hospital-user-portal
             
             git pull origin main
             
