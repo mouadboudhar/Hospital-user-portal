@@ -89,14 +89,25 @@ public class BasketController : Controller
         var doctor = await _context.Doctors.FindAsync(doctorId);
         if (doctor == null)
         {
-            TempData["Error"] = "Doctor not found.";
+            TempData["Error"] = "Médecin non trouvé.";
             return RedirectToAction("Index", "Doctors");
         }
 
         if (!TimeSpan.TryParse(appointmentTime, out var time))
         {
-            TempData["Error"] = "Invalid time selected.";
+            TempData["Error"] = "Heure sélectionnée invalide.";
             return RedirectToAction("Details", "Doctors", new { id = doctorId });
+        }
+
+        // Calculate end time (30 min default slot)
+        var endTime = time.Add(TimeSpan.FromMinutes(30));
+
+        // Check for overlapping appointments
+        var hasOverlap = await CheckAppointmentOverlap(doctorId, appointmentDate, time, endTime);
+        if (hasOverlap)
+        {
+            TempData["Error"] = "Ce créneau horaire n'est plus disponible. Le médecin a déjà un rendez-vous à cette heure.";
+            return RedirectToAction("Details", "Doctors", new { id = doctorId, date = appointmentDate.ToString("yyyy-MM-dd") });
         }
 
         var price = doctor.ConsultationFee;
@@ -128,8 +139,30 @@ public class BasketController : Controller
         basket.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
 
-        TempData["Success"] = $"Appointment with {doctor.FullName} added to your basket.";
+        TempData["Success"] = $"Rendez-vous avec {doctor.FullName} ajouté à votre panier.";
         return RedirectToAction("Index");
+    }
+
+    /// <summary>
+    /// Checks if there's an overlapping appointment for the same doctor at the same time
+    /// </summary>
+    private async Task<bool> CheckAppointmentOverlap(int doctorId, DateTime date, TimeSpan startTime, TimeSpan endTime, int? excludeAppointmentId = null)
+    {
+        var query = _context.Appointments
+            .Where(a => a.DoctorId == doctorId &&
+                        a.AppointmentDate.Date == date.Date &&
+                        a.Status != AppointmentStatus.Cancelled);
+
+        if (excludeAppointmentId.HasValue)
+        {
+            query = query.Where(a => a.Id != excludeAppointmentId.Value);
+        }
+
+        // Check if any existing appointment overlaps with the requested time slot
+        return await query.AnyAsync(a =>
+            (startTime >= a.StartTime && startTime < a.EndTime) ||  // New start is within existing
+            (endTime > a.StartTime && endTime <= a.EndTime) ||       // New end is within existing
+            (startTime <= a.StartTime && endTime >= a.EndTime));     // New appointment encompasses existing
     }
 
     [HttpPost]

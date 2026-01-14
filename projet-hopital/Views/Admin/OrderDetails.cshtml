@@ -1,0 +1,266 @@
+@model projet_hopital.ViewModels.EditOrderViewModel
+@{
+    ViewData["Title"] = "Détails de la commande";
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a asp-action="Orders">Commandes</a></li>
+            <li class="breadcrumb-item active">@Model.OrderNumber</li>
+        </ol>
+    </nav>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1><i class="bi bi-receipt me-2"></i>Commande @Model.OrderNumber</h1>
+        <a asp-action="Orders" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Retour
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Order Items -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-cart me-2"></i>Articles de la commande</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Items.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Service</th>
+                                    <th>Quantité</th>
+                                    <th>Prix unitaire</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td>@item.Service?.Name</td>
+                                        <td>@item.Quantity</td>
+                                        <td>@item.UnitPrice.ToString("N2") MAD</td>
+                                        <td><strong>@item.SubTotal.ToString("N2") MAD</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Total</strong></td>
+                                    <td><strong>@Model.TotalAmount.ToString("N2") MAD</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-center py-4 text-muted">Aucun article dans cette commande</p>
+                }
+            </div>
+        </div>
+
+        <!-- Associated Appointments -->
+        @if (Model.Appointments.Any())
+        {
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Rendez-vous associés</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Médecin</th>
+                                    <th>Date</th>
+                                    <th>Heure</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var apt in Model.Appointments)
+                                {
+                                    <tr>
+                                        <td>@apt.Doctor?.FullName</td>
+                                        <td>@apt.AppointmentDate.ToString("dd/MM/yyyy")</td>
+                                        <td>@apt.StartTime.ToString(@"hh\:mm") - @apt.EndTime.ToString(@"hh\:mm")</td>
+                                        <td>
+                                            @switch (apt.Status)
+                                            {
+                                                case projet_hopital.Models.AppointmentStatus.Pending:
+                                                    <span class="badge bg-warning text-dark">En attente</span>
+                                                    break;
+                                                case projet_hopital.Models.AppointmentStatus.Confirmed:
+                                                    <span class="badge bg-success">Confirmé</span>
+                                                    break;
+                                                case projet_hopital.Models.AppointmentStatus.Completed:
+                                                    <span class="badge bg-info">Terminé</span>
+                                                    break;
+                                                case projet_hopital.Models.AppointmentStatus.Cancelled:
+                                                    <span class="badge bg-danger">Annulé</span>
+                                                    break;
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-4">
+        <!-- Order Info -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informations</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">N° Commande</dt>
+                    <dd class="col-sm-7"><code>@Model.OrderNumber</code></dd>
+                    
+                    <dt class="col-sm-5">Créée le</dt>
+                    <dd class="col-sm-7">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
+                    
+                    <dt class="col-sm-5">Statut</dt>
+                    <dd class="col-sm-7">
+                        @switch (Model.Status)
+                        {
+                            case projet_hopital.Models.OrderStatus.Pending:
+                                <span class="badge bg-warning text-dark">En attente</span>
+                                break;
+                            case projet_hopital.Models.OrderStatus.Confirmed:
+                                <span class="badge bg-primary">Confirmé</span>
+                                break;
+                            case projet_hopital.Models.OrderStatus.Processing:
+                                <span class="badge bg-info">En cours</span>
+                                break;
+                            case projet_hopital.Models.OrderStatus.Completed:
+                                <span class="badge bg-success">Terminé</span>
+                                break;
+                            case projet_hopital.Models.OrderStatus.Cancelled:
+                                <span class="badge bg-danger">Annulé</span>
+                                break;
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-5">Paiement</dt>
+                    <dd class="col-sm-7">
+                        @switch (Model.PaymentStatus)
+                        {
+                            case projet_hopital.Models.PaymentStatus.Pending:
+                                <span class="badge bg-warning text-dark">En attente</span>
+                                break;
+                            case projet_hopital.Models.PaymentStatus.Paid:
+                                <span class="badge bg-success">Payé</span>
+                                break;
+                            case projet_hopital.Models.PaymentStatus.Failed:
+                                <span class="badge bg-danger">Échoué</span>
+                                break;
+                            case projet_hopital.Models.PaymentStatus.Refunded:
+                                <span class="badge bg-secondary">Remboursé</span>
+                                break;
+                        }
+                    </dd>
+                    
+                    <dt class="col-sm-5">Total</dt>
+                    <dd class="col-sm-7"><strong>@Model.TotalAmount.ToString("N2") MAD</strong></dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Customer Info -->
+        @if (Model.User != null)
+        {
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-person me-2"></i>Client</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Nom</dt>
+                        <dd class="col-sm-8">@Model.User.FirstName @Model.User.LastName</dd>
+                        
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8"><a href="mailto:@Model.User.Email">@Model.User.Email</a></dd>
+                        
+                        @if (!string.IsNullOrEmpty(Model.User.PhoneNumber))
+                        {
+                            <dt class="col-sm-4">Tél.</dt>
+                            <dd class="col-sm-8">@Model.User.PhoneNumber</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+        }
+
+        <!-- Notes -->
+        @if (!string.IsNullOrEmpty(Model.Notes))
+        {
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-sticky me-2"></i>Notes</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">@Model.Notes</p>
+                </div>
+            </div>
+        }
+
+        <!-- Actions -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-outline-primary dropdown-toggle w-100" data-bs-toggle="dropdown">
+                            Changer le statut
+                        </button>
+                        <ul class="dropdown-menu w-100">
+                            @foreach (projet_hopital.Models.OrderStatus status in Enum.GetValues(typeof(projet_hopital.Models.OrderStatus)))
+                            {
+                                <li>
+                                    <form asp-action="UpdateOrderStatus" method="post">
+                                        <input type="hidden" name="id" value="@Model.Id" />
+                                        <input type="hidden" name="status" value="@((int)status)" />
+                                        <button type="submit" class="dropdown-item">@status</button>
+                                    </form>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-outline-success dropdown-toggle w-100" data-bs-toggle="dropdown">
+                            Changer le paiement
+                        </button>
+                        <ul class="dropdown-menu w-100">
+                            @foreach (projet_hopital.Models.PaymentStatus pStatus in Enum.GetValues(typeof(projet_hopital.Models.PaymentStatus)))
+                            {
+                                <li>
+                                    <form asp-action="UpdatePaymentStatus" method="post">
+                                        <input type="hidden" name="id" value="@Model.Id" />
+                                        <input type="hidden" name="paymentStatus" value="@((int)pStatus)" />
+                                        <button type="submit" class="dropdown-item">@pStatus</button>
+                                    </form>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

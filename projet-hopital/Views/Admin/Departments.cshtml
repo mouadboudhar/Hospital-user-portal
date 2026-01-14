@@ -1,0 +1,114 @@
+@model projet_hopital.ViewModels.AdminDepartmentListViewModel
+@{
+    ViewData["Title"] = "Gestion des départements";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-building me-2"></i>Gestion des départements</h1>
+    <a asp-action="CreateDepartment" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Nouveau département
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-10">
+                <label class="form-label">Rechercher</label>
+                <input type="text" name="search" value="@Model.SearchQuery" class="form-control" placeholder="Nom du département...">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search me-1"></i>Filtrer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Departments Grid -->
+<div class="row g-4">
+    @if (Model.Departments.Any())
+    {
+        @foreach (var dept in Model.Departments)
+        {
+            <div class="col-md-4">
+                <div class="card h-100">
+                    @if (!string.IsNullOrEmpty(dept.ImageUrl))
+                    {
+                        <img src="@dept.ImageUrl" class="card-img-top" alt="@dept.Name" style="height: 150px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <i class="bi bi-building text-white" style="font-size: 3rem;"></i>
+                        </div>
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@dept.Name</h5>
+                        <p class="card-text text-muted">@(dept.Description ?? "Aucune description")</p>
+                        <div class="d-flex gap-2 mb-3">
+                            <span class="badge bg-primary"><i class="bi bi-person-badge me-1"></i>@dept.Doctors.Count médecins</span>
+                            <span class="badge bg-info"><i class="bi bi-clipboard2-pulse me-1"></i>@dept.Services.Count services</span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="btn-group btn-group-sm w-100">
+                            <a asp-action="EditDepartment" asp-route-id="@dept.Id" class="btn btn-outline-primary">
+                                <i class="bi bi-pencil me-1"></i>Modifier
+                            </a>
+                            <button type="button" class="btn btn-outline-danger" 
+                                    onclick="confirmDelete(@dept.Id, '@dept.Name')">
+                                <i class="bi bi-trash me-1"></i>Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-building" style="font-size: 3rem;"></i>
+                <p class="mt-2">Aucun département trouvé</p>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer le département <strong id="departmentName"></strong> ?</p>
+                <p class="text-danger"><small>Cette action est irréversible.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form asp-action="DeleteDepartment" method="post" id="deleteForm">
+                    <input type="hidden" name="id" id="deleteDepartmentId" />
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, name) {
+            document.getElementById('deleteDepartmentId').value = id;
+            document.getElementById('departmentName').textContent = name;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+}
+

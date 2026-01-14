@@ -65,4 +65,7 @@ x64/
 *.user
 obj/
 bin/
-
+# Ignore PlantUML diagrams output
+/diagrams.puml
+/diagrams/*.puml
+/diagrams

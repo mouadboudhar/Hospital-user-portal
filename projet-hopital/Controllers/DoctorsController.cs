@@ -20,7 +20,7 @@ public class DoctorsController : Controller
     {
         var query = _context.Doctors
             .Include(d => d.Department)
-            .Where(d => d.IsAvailable);
+            .AsQueryable();
 
         if (departmentId.HasValue)
         {
@@ -69,7 +69,7 @@ public class DoctorsController : Controller
         var model = new DoctorDetailViewModel
         {
             Doctor = doctor,
-            AvailableServices = doctor.DoctorServices.Select(ds => ds.Service!).Where(s => s != null && s.IsActive).ToList(),
+            AvailableServices = doctor.DoctorServices.Select(ds => ds.Service!).Where(s => s != null).ToList(),
             SelectedDate = selectedDate,
             AvailableTimeSlots = await GetAvailableTimeSlots(doctor.Id, selectedDate)
         };

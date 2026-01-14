@@ -25,12 +25,10 @@ public class HomeController : Controller
             FeaturedDepartments = await _context.Departments.Take(6).ToListAsync(),
             FeaturedDoctors = await _context.Doctors
                 .Include(d => d.Department)
-                .Where(d => d.IsAvailable)
                 .Take(4)
                 .ToListAsync(),
             PopularServices = await _context.MedicalServices
                 .Include(s => s.Department)
-                .Where(s => s.IsActive)
                 .Take(6)
                 .ToListAsync()
         };

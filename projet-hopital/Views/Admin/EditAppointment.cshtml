@@ -1,0 +1,142 @@
+@model projet_hopital.ViewModels.EditAppointmentViewModel
+@{
+    ViewData["Title"] = "Modifier le rendez-vous";
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a asp-action="Appointments">Rendez-vous</a></li>
+            <li class="breadcrumb-item active">Modifier</li>
+        </ol>
+    </nav>
+    <h1><i class="bi bi-pencil-square me-2"></i>Modifier le rendez-vous #@Model.Id</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                @if (Model.User != null)
+                {
+                    <div class="alert alert-info">
+                        <strong>Patient:</strong> @Model.User.FirstName @Model.User.LastName (@Model.User.Email)
+                    </div>
+                }
+                
+                <form asp-action="EditAppointment" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="UserId" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="DoctorId" class="form-label">Médecin</label>
+                            <select asp-for="DoctorId" asp-items="@(new SelectList(Model.Doctors, "Id", "FullName"))" class="form-select" id="doctorSelect">
+                                <option value="">-- Sélectionner --</option>
+                            </select>
+                            <span asp-validation-for="DoctorId" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ServiceId" class="form-label">Service (optionnel)</label>
+                            <select asp-for="ServiceId" asp-items="@(new SelectList(Model.Services, "Id", "Name"))" class="form-select">
+                                <option value="">-- Aucun --</option>
+                            </select>
+                            <span asp-validation-for="ServiceId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="AppointmentDate" class="form-label">Date</label>
+                            <input asp-for="AppointmentDate" type="date" class="form-control" id="dateInput" />
+                            <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="StartTime" class="form-label">Heure de début</label>
+                            <input asp-for="StartTime" type="time" class="form-control" id="startTimeInput" />
+                            <span asp-validation-for="StartTime" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="EndTime" class="form-label">Heure de fin</label>
+                            <input asp-for="EndTime" type="time" class="form-control" id="endTimeInput" />
+                            <span asp-validation-for="EndTime" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div id="overlapWarning" class="alert alert-warning d-none">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Attention:</strong> Ce créneau chevauche un autre rendez-vous pour ce médecin.
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Status" class="form-label">Statut</label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="0">En attente</option>
+                            <option value="1">Confirmé</option>
+                            <option value="2">Terminé</option>
+                            <option value="3">Annulé</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Notes" class="form-label">Notes</label>
+                        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Appointments" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="bi bi-check-lg me-1"></i>Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const doctorSelect = document.getElementById('doctorSelect');
+        const dateInput = document.getElementById('dateInput');
+        const startTimeInput = document.getElementById('startTimeInput');
+        const endTimeInput = document.getElementById('endTimeInput');
+        const overlapWarning = document.getElementById('overlapWarning');
+        const appointmentId = @Model.Id;
+
+        async function checkOverlap() {
+            const doctorId = doctorSelect.value;
+            const date = dateInput.value;
+            const startTime = startTimeInput.value;
+            const endTime = endTimeInput.value;
+
+            if (doctorId && date && startTime && endTime) {
+                try {
+                    const response = await fetch(`/Admin/CheckOverlap?doctorId=${doctorId}&date=${date}&startTime=${startTime}&endTime=${endTime}&excludeId=${appointmentId}`);
+                    const data = await response.json();
+                    
+                    if (data.hasOverlap) {
+                        overlapWarning.classList.remove('d-none');
+                    } else {
+                        overlapWarning.classList.add('d-none');
+                    }
+                } catch (error) {
+                    console.error('Error checking overlap:', error);
+                }
+            }
+        }
+
+        doctorSelect.addEventListener('change', checkOverlap);
+        dateInput.addEventListener('change', checkOverlap);
+        startTimeInput.addEventListener('change', checkOverlap);
+        endTimeInput.addEventListener('change', checkOverlap);
+    </script>
+}
+

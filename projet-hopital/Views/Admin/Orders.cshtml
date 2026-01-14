@@ -1,0 +1,209 @@
+@model projet_hopital.ViewModels.AdminOrderListViewModel
+@{
+    ViewData["Title"] = "Gestion des commandes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-receipt me-2"></i>Gestion des commandes</h1>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Rechercher</label>
+                <input type="text" name="search" value="@Model.SearchQuery" class="form-control" placeholder="N° commande ou client...">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Statut commande</label>
+                <select name="status" class="form-select">
+                    <option value="">Tous</option>
+                    <option value="0" selected="@(Model.StatusFilter == projet_hopital.Models.OrderStatus.Pending)">En attente</option>
+                    <option value="1" selected="@(Model.StatusFilter == projet_hopital.Models.OrderStatus.Confirmed)">Confirmé</option>
+                    <option value="2" selected="@(Model.StatusFilter == projet_hopital.Models.OrderStatus.Processing)">En cours</option>
+                    <option value="3" selected="@(Model.StatusFilter == projet_hopital.Models.OrderStatus.Completed)">Terminé</option>
+                    <option value="4" selected="@(Model.StatusFilter == projet_hopital.Models.OrderStatus.Cancelled)">Annulé</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Statut paiement</label>
+                <select name="paymentStatus" class="form-select">
+                    <option value="">Tous</option>
+                    <option value="0" selected="@(Model.PaymentStatusFilter == projet_hopital.Models.PaymentStatus.Pending)">En attente</option>
+                    <option value="1" selected="@(Model.PaymentStatusFilter == projet_hopital.Models.PaymentStatus.Paid)">Payé</option>
+                    <option value="2" selected="@(Model.PaymentStatusFilter == projet_hopital.Models.PaymentStatus.Failed)">Échoué</option>
+                    <option value="3" selected="@(Model.PaymentStatusFilter == projet_hopital.Models.PaymentStatus.Refunded)">Remboursé</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Date début</label>
+                <input type="date" name="dateFrom" value="@Model.DateFrom?.ToString("yyyy-MM-dd")" class="form-control">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Date fin</label>
+                <input type="date" name="dateTo" value="@Model.DateTo?.ToString("yyyy-MM-dd")" class="form-control">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>N° Commande</th>
+                        <th>Client</th>
+                        <th>Articles</th>
+                        <th>Montant</th>
+                        <th>Statut</th>
+                        <th>Paiement</th>
+                        <th>Date</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Orders.Any())
+                    {
+                        @foreach (var order in Model.Orders)
+                        {
+                            <tr>
+                                <td><code>@order.OrderNumber</code></td>
+                                <td>@order.User?.FirstName @order.User?.LastName</td>
+                                <td><span class="badge bg-secondary">@order.Items.Count article(s)</span></td>
+                                <td><strong>@order.TotalAmount.ToString("N2") MAD</strong></td>
+                                <td>
+                                    @switch (order.Status)
+                                    {
+                                        case projet_hopital.Models.OrderStatus.Pending:
+                                            <span class="badge bg-warning text-dark">En attente</span>
+                                            break;
+                                        case projet_hopital.Models.OrderStatus.Confirmed:
+                                            <span class="badge bg-primary">Confirmé</span>
+                                            break;
+                                        case projet_hopital.Models.OrderStatus.Processing:
+                                            <span class="badge bg-info">En cours</span>
+                                            break;
+                                        case projet_hopital.Models.OrderStatus.Completed:
+                                            <span class="badge bg-success">Terminé</span>
+                                            break;
+                                        case projet_hopital.Models.OrderStatus.Cancelled:
+                                            <span class="badge bg-danger">Annulé</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    @switch (order.PaymentStatus)
+                                    {
+                                        case projet_hopital.Models.PaymentStatus.Pending:
+                                            <span class="badge bg-warning text-dark">En attente</span>
+                                            break;
+                                        case projet_hopital.Models.PaymentStatus.Paid:
+                                            <span class="badge bg-success">Payé</span>
+                                            break;
+                                        case projet_hopital.Models.PaymentStatus.Failed:
+                                            <span class="badge bg-danger">Échoué</span>
+                                            break;
+                                        case projet_hopital.Models.PaymentStatus.Refunded:
+                                            <span class="badge bg-secondary">Remboursé</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <div class="dropdown">
+                                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" title="Statut commande">
+                                                <i class="bi bi-arrow-repeat"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><h6 class="dropdown-header">Statut commande</h6></li>
+                                                @foreach (projet_hopital.Models.OrderStatus status in Enum.GetValues(typeof(projet_hopital.Models.OrderStatus)))
+                                                {
+                                                    <li>
+                                                        <form asp-action="UpdateOrderStatus" method="post">
+                                                            <input type="hidden" name="id" value="@order.Id" />
+                                                            <input type="hidden" name="status" value="@((int)status)" />
+                                                            <button type="submit" class="dropdown-item">@status</button>
+                                                        </form>
+                                                    </li>
+                                                }
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><h6 class="dropdown-header">Statut paiement</h6></li>
+                                                @foreach (projet_hopital.Models.PaymentStatus pStatus in Enum.GetValues(typeof(projet_hopital.Models.PaymentStatus)))
+                                                {
+                                                    <li>
+                                                        <form asp-action="UpdatePaymentStatus" method="post">
+                                                            <input type="hidden" name="id" value="@order.Id" />
+                                                            <input type="hidden" name="paymentStatus" value="@((int)pStatus)" />
+                                                            <button type="submit" class="dropdown-item">@pStatus</button>
+                                                        </form>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                        <a asp-action="OrderDetails" asp-route-id="@order.Id" class="btn btn-outline-primary" title="Détails">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                onclick="confirmDelete(@order.Id, '@order.OrderNumber')" title="Supprimer">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">Aucune commande trouvée</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer la commande <strong id="orderNumber"></strong> ?</p>
+                <p class="text-danger"><small>Cette action est irréversible.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form asp-action="DeleteOrder" method="post" id="deleteForm">
+                    <input type="hidden" name="id" id="deleteOrderId" />
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id, orderNumber) {
+            document.getElementById('deleteOrderId').value = id;
+            document.getElementById('orderNumber').textContent = orderNumber;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+}
+

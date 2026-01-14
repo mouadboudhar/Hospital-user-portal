@@ -20,7 +20,7 @@ public class ServicesController : Controller
     {
         var query = _context.MedicalServices
             .Include(s => s.Department)
-            .Where(s => s.IsActive);
+            .AsQueryable();
 
         if (departmentId.HasValue)
         {
@@ -65,7 +65,7 @@ public class ServicesController : Controller
     public async Task<IActionResult> ByDepartment(int id)
     {
         var department = await _context.Departments
-            .Include(d => d.Services.Where(s => s.IsActive))
+            .Include(d => d.Services)
             .FirstOrDefaultAsync(d => d.Id == id);
 
         if (department == null)
